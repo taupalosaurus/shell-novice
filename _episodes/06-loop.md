@@ -1,7 +1,7 @@
 ---
 title: "Loops"
-teaching: 15
-exercises: 0
+teaching: 40
+exercises: 10
 questions:
 - "How can I perform the same actions on many different files?"
 objectives:
@@ -36,14 +36,14 @@ We can't use:
 ~~~
 $ cp *.dat original-*.dat
 ~~~
-{: .bash}
+{: .language-bash}
 
 because that would expand to:
 
 ~~~
 $ cp basilisk.dat unicorn.dat original-*.dat
 ~~~
-{: .bash}
+{: .language-bash}
 
 This wouldn't back up our files, instead we get an error:
 
@@ -67,7 +67,7 @@ $ for filename in basilisk.dat unicorn.dat
 >    head -n 3 $filename
 > done
 ~~~
-{: .bash}
+{: .language-bash}
 
 ~~~
 COMMON NAME: basilisk
@@ -108,6 +108,79 @@ possible to put the names into curly braces to clearly delimit the variable
 name: `$filename` is equivalent to `${filename}`, but is different from
 `${file}name`. You may find this notation in other people's programs.
 
+> ## Variables in Loops
+>
+> This exercise refers to the `data-shell/molecules` directory.
+> `ls` gives the following output:
+>
+> ~~~
+> cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> ~~~
+> {: .output}
+>
+> What is the output of the following code?
+>
+> ~~~
+> for datafile in *.pdb
+> do
+>     ls *.pdb
+> done
+> ~~~
+> {: .language-bash}
+>
+> Now, what is the output of the following code?
+>
+> ~~~
+> for datafile in *.pdb
+> do
+>	ls $datafile
+> done
+> ~~~
+> {: .language-bash}
+>
+> Why do these two loops give different outputs?
+>
+> > ## Solution
+> > The first code block gives the same output on each iteration through
+> > the loop.
+> > Bash expands the wildcard `*.pdb` within the loop body (as well as
+> > before the loop starts) to match all files ending in `.pdb`
+> > and then lists them using `ls`.
+> > The expanded loop would look like this:
+> > ```
+> > for datafile in cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > do
+> >	ls cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > done
+> > ```
+> > {: .language-bash}
+> >
+> > ```
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
+> > ```
+> > {: .output}
+> >
+> > The second code block lists a different file on each loop iteration.
+> > The value of the `datafile` variable is evaluated using `$datafile`,
+> > and then listed using `ls`.
+> >
+> > ```
+> > cubane.pdb
+> > ethane.pdb
+> > methane.pdb
+> > octane.pdb
+> > pentane.pdb
+> > propane.pdb
+> > ```
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
 > ## Follow the Prompt
 >
 > The shell prompt changes from `$` to `>` and back again as we were
@@ -141,7 +214,7 @@ do
     head -n 3 $x
 done
 ~~~
-{: .bash}
+{: .language-bash}
 
 or:
 
@@ -151,13 +224,58 @@ do
     head -n 3 $temperature
 done
 ~~~
-{: .bash}
+{: .language-bash}
 
 it would work exactly the same way.
 *Don't do this.*
 Programs are only useful if people can understand them,
 so meaningless names (like `x`) or misleading names (like `temperature`)
 increase the odds that the program won't do what its readers think it does.
+
+> ## Limiting Sets of Files
+>
+> What would be the output of running the following loop in the `data-shell/molecules` directory?
+>
+> ~~~
+> for filename in c*
+> do
+>     ls $filename 
+> done
+> ~~~
+> {: .language-bash}
+>
+> 1.  No files are listed.
+> 2.  All files are listed.
+> 3.  Only `cubane.pdb`, `octane.pdb` and `pentane.pdb` are listed.
+> 4.  Only `cubane.pdb` is listed.
+>
+> > ## Solution
+> > 4 is the correct answer. `*` matches zero or more characters, so any file name starting with 
+> > the letter c, followed by zero or more other characters will be matched.
+> {: .solution}
+>
+> How would the output differ from using this command instead?
+>
+> ~~~
+> for filename in *c*
+> do
+>     ls $filename 
+> done
+> ~~~
+> {: .language-bash}
+>
+> 1.  The same files would be listed.
+> 2.  All the files are listed this time.
+> 3.  No files are listed this time.
+> 4.  The files `cubane.pdb` and `octane.pdb` will be listed.
+> 5.  Only the file `octane.pdb` will be listed.
+>
+> > ## Solution
+> > 4 is the correct answer. `*` matches zero or more characters, so a file name with zero or more
+> > characters before a letter c and zero or more characters after the letter c will be matched.
+> {: .solution}
+{: .challenge}
+
 
 Here's a slightly more complicated loop:
 
@@ -168,7 +286,7 @@ do
     head -n 100 $filename | tail -n 20
 done
 ~~~
-{: .bash}
+{: .language-bash}
 
 The shell starts by expanding `*.dat` to create the list of files it will process.
 The **loop body**
@@ -179,7 +297,7 @@ For example:
 ~~~
 $ echo hello there
 ~~~
-{: .bash}
+{: .language-bash}
 
 prints:
 
@@ -200,7 +318,7 @@ do
     head -n 100 $filename | tail -n 20
 done
 ~~~
-{: .bash}
+{: .language-bash}
 
 because then the first time through the loop,
 when `$filename` expanded to `basilisk.dat`, the shell would try to run `basilisk.dat` as a program.
@@ -231,7 +349,7 @@ from whatever file is being processed
 >     head -n 100 "$filename" | tail -n 20
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > It is simpler just to avoid using whitespaces (or other special characters) in filenames.
 >
@@ -263,7 +381,7 @@ do
     cp $filename original-$filename
 done
 ~~~
-{: .bash}
+{: .language-bash}
 
 This loop runs the `cp` command once for each filename.
 The first time,
@@ -273,14 +391,14 @@ the shell executes:
 ~~~
 cp basilisk.dat original-basilisk.dat
 ~~~
-{: .bash}
+{: .language-bash}
 
 The second time, the command is:
 
 ~~~
 cp unicorn.dat original-unicorn.dat
 ~~~
-{: .bash}
+{: .language-bash}
 
 Since the `cp` command does not normally produce any output, it's hard to check 
 that the loop is doing the correct thing. By prefixing the command with `echo` 
@@ -292,10 +410,15 @@ judicious use of `echo` is a good debugging technique.
 
 ## Nelle's Pipeline: Processing Files
 
-Nelle is now ready to process her data files.
+Nelle is now ready to process her data files using `goostats` --- a shell script written by her supervisor.
+This calculates some statistics from a protein sample file, and takes two arguments:
+
+1. an input file (containing the raw data)
+2. an output file (to store the calculated statistics)
+
 Since she's still learning how to use the shell,
 she decides to build up the required commands in stages.
-Her first step is to make sure that she can select the right files --- remember,
+Her first step is to make sure that she can select the right input files --- remember,
 these are ones whose names end in 'A' or 'B', rather than 'Z'. Starting from her home directory, Nelle types:
 
 ~~~
@@ -305,7 +428,7 @@ $ for datafile in NENE*[AB].txt
 >     echo $datafile
 > done
 ~~~
-{: .bash}
+{: .language-bash}
 
 ~~~
 NENE01729A.txt
@@ -328,7 +451,7 @@ $ for datafile in NENE*[AB].txt
 >     echo $datafile stats-$datafile
 > done
 ~~~
-{: .bash}
+{: .language-bash}
 
 ~~~
 NENE01729A.txt stats-NENE01729A.txt
@@ -355,7 +478,7 @@ the shell redisplays the whole loop on one line
 ~~~
 $ for datafile in NENE*[AB].txt; do echo $datafile stats-$datafile; done
 ~~~
-{: .bash}
+{: .language-bash}
 
 Using the left arrow key,
 Nelle backs up and changes the command `echo` to `bash goostats`:
@@ -363,7 +486,7 @@ Nelle backs up and changes the command `echo` to `bash goostats`:
 ~~~
 $ for datafile in NENE*[AB].txt; do bash goostats $datafile stats-$datafile; done
 ~~~
-{: .bash}
+{: .language-bash}
 
 When she presses Enter,
 the shell runs the modified command.
@@ -377,7 +500,7 @@ and edits it to read:
 ~~~
 $ for datafile in NENE*[AB].txt; do echo $datafile; bash goostats $datafile stats-$datafile; done
 ~~~
-{: .bash}
+{: .language-bash}
 
 > ## Beginning and End
 >
@@ -417,7 +540,7 @@ so she decides to get some coffee and catch up on her reading.
 > ~~~
 > $ history | tail -n 5
 > ~~~
-> {: .bash}
+> {: .language-bash}
 > ~~~
 >   456  ls -l NENE0*.txt
 >   457  rm stats-NENE01729B.txt.txt
@@ -447,79 +570,6 @@ so she decides to get some coffee and catch up on her reading.
 > quicker than doing up-arrow and editing the command-line.
 {: .callout}
 
-> ## Variables in Loops
->
-> This exercise refers to the `data-shell/molecules` directory.
-> `ls` gives the following output:
->
-> ~~~
-> cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> ~~~
-> {: .output}
->
-> What is the output of the following code?
->
-> ~~~
-> for datafile in *.pdb
-> do
->     ls *.pdb
-> done
-> ~~~
-> {: .bash}
->
-> Now, what is the output of the following code?
->
-> ~~~
-> for datafile in *.pdb
-> do
->	ls $datafile
-> done
-> ~~~
-> {: .bash}
->
-> Why do these two loops give different outputs?
->
-> > ## Solution
-> > The first code block gives the same output on each iteration through
-> > the loop.
-> > Bash expands the wildcard `*.pdb` within the loop body (as well as
-> > before the loop starts) to match all files ending in `.pdb`
-> > and then lists them using `ls`.
-> > The expanded loop would look like this:
-> > ```
-> > for datafile in cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > do
-> >	ls cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > done
-> > ```
-> > {: .bash}
-> >
-> > ```
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > cubane.pdb  ethane.pdb  methane.pdb  octane.pdb  pentane.pdb  propane.pdb
-> > ```
-> > {: .output}
-> >
-> > The second code block lists a different file on each loop iteration.
-> > The value of the `datafile` variable is evaluated using `$datafile`,
-> > and then listed using `ls`.
-> >
-> > ```
-> > cubane.pdb
-> > ethane.pdb
-> > methane.pdb
-> > octane.pdb
-> > pentane.pdb
-> > propane.pdb
-> > ```
-> > {: .output}
-> {: .solution}
-{: .challenge}
-
 > ## Saving to a File in a Loop - Part One
 >
 > In the same directory, what is the effect of this loop?
@@ -531,7 +581,7 @@ so she decides to get some coffee and catch up on her reading.
 >     cat $alkanes > alkanes.pdb
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > 1.  Prints `cubane.pdb`, `ethane.pdb`, `methane.pdb`, `octane.pdb`, `pentane.pdb` and `propane.pdb`,
 >     and the text from `propane.pdb` will be saved to a file called `alkanes.pdb`.
@@ -558,7 +608,7 @@ so she decides to get some coffee and catch up on her reading.
 >     cat $datafile >> all.pdb
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > 1.  All of the text from `cubane.pdb`, `ethane.pdb`, `methane.pdb`, `octane.pdb`, and
 >     `pentane.pdb` would be concatenated and saved to a file called `all.pdb`.
@@ -572,50 +622,6 @@ so she decides to get some coffee and catch up on her reading.
 > > 3 is the correct answer. `>>` appends to a file, rather than overwriting it with the redirected
 > > output from a command.
 > > Given the output from the `cat` command has been redirected, nothing is printed to the screen.
-> {: .solution}
-{: .challenge}
-
-> ## Limiting Sets of Files
->
-> In the same directory, what would be the output of the following loop?
->
-> ~~~
-> for filename in c*
-> do
->     ls $filename 
-> done
-> ~~~
-> {: .bash}
->
-> 1.  No files are listed.
-> 2.  All files are listed.
-> 3.  Only `cubane.pdb`, `octane.pdb` and `pentane.pdb` are listed.
-> 4.  Only `cubane.pdb` is listed.
->
-> > ## Solution
-> > 4 is the correct answer. `*` matches zero or more characters, so any file name starting with 
-> > the letter c, followed by zero or more other characters will be matched.
-> {: .solution}
->
-> How would the output differ from using this command instead?
->
-> ~~~
-> for filename in *c*
-> do
->     ls $filename 
-> done
-> ~~~
-> {: .bash}
->
-> 1.  The same files would be listed.
-> 2.  All the files are listed this time.
-> 3.  No files are listed this time.
-> 4.  The files `cubane.pdb` and `octane.pdb` will be listed.
-> 5.  Only the file `octane.pdb` will be listed.
->
-> > ## Solution
-> > 4 is the correct answer. `*` matches zero or more characters, so a file name with zero or more
-> > characters before a letter c and zero or more characters after the letter c will be matched.
 > {: .solution}
 {: .challenge}
 
@@ -634,7 +640,7 @@ so she decides to get some coffee and catch up on her reading.
 >   analyze $file > analyzed-$file
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > What is the difference between the two loops below, and which one would we
 > want to run?
@@ -646,7 +652,7 @@ so she decides to get some coffee and catch up on her reading.
 >   echo analyze $file > analyzed-$file
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > ~~~
 > # Version 2
@@ -655,7 +661,7 @@ so she decides to get some coffee and catch up on her reading.
 >   echo "analyze $file > analyzed-$file"
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > > ## Solution
 > > The second version is the one we want to run.
@@ -687,7 +693,7 @@ so she decides to get some coffee and catch up on her reading.
 >     done
 > done
 > ~~~
-> {: .bash}
+> {: .language-bash}
 >
 > > ## Solution
 > > We have a nested loop, i.e. contained within another loop, so for each species
